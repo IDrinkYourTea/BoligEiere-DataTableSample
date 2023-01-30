@@ -7,37 +7,34 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using DataHusEier;
 
 namespace DataTableSample
 {
     public partial class Default : System.Web.UI.Page
     {
+        protected DBLayer dbl = new DBLayer();
         protected void Page_Load(object sender, EventArgs e)
         {
-            LabelNumBoliger.Text = GetNumOfBoliger().ToString();//hvorfor ToString her?
-        }
-
-        /// <summary>
-        /// Teller hvor mange boliger det er i tabellen Bolig. Returnerer kun et tall. Er det OK å ha en slik metode i her?
-        /// </summary>
-        private int GetNumOfBoliger()
-        {
-            var connectionString = ConfigurationManager.ConnectionStrings["BoligEier"].ConnectionString;
-            DataTable dt = new DataTable();
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            if (!IsPostBack)
             {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT count(BoligId) from Bolig", conn);
-                cmd.CommandType = CommandType.Text;
-                int num = (Int32)cmd.ExecuteScalar();//returner den første raden og den første kolonnen. sjekk i sql manager. Unboxing eksempel.
-
-                conn.Close();
-                return num;
+               
             }
-            
         }
+        
 
        
+
+        protected void ButtonShowAll_Click(object sender, EventArgs e)
+        {
+            GridView1.DataSource= dbl.GetAllDataFromEierAndHus();
+            GridView1.DataBind();
+        }
+        protected void ButtonSearchTelefonNR_Click(object sender, EventArgs e)
+        {
+            List<BoligOgEier> boe = dbl.GetAllDataFromEierAndHusWhereTLFnr(int.Parse(TextBoxSearchTelefonNR.Text));
+            GridView1.DataSource = boe;
+            GridView1.DataBind();
+        }
     }
 }

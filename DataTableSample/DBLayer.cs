@@ -4,29 +4,69 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Web;
+using DataHusEier;
+using DataTableSample;
 
 namespace DataTableSample
 {
     public class DBLayer
     {
-        public DataTable GetBoligAndOwnersByTelefon(string tlf)
+        static string connectionString = ConfigurationManager.ConnectionStrings["BoligEier"].ConnectionString;
+        SqlConnection conn = new SqlConnection(connectionString);
+
+        public List<BoligOgEier> GetAllDataFromEierAndHus()
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["BoligEier"].ConnectionString;
+            try
+            {
+                List<BoligOgEier> EierHus = new List<BoligOgEier>();
+
+                conn.Open();
+                SqlCommand cmd = new SqlCommand($"SELECT Eier.ID, Eier.Fornavn, Eier.Etternavn, Eier.Adresse, Eier.PostNR, Boligtype, Boligtype.BoligtypeID, Bolig.AntallSoverom, Bolig.AntallEtasjer, Bolig.Primerrom, Bolig.Bruksareal, Bolig.Tomteareal, Bolig.Byggeår, TelefonNR.TelefonNR FROM EierBolig INNER JOIN Eier ON Eier.ID = EierBolig.ID INNER JOIN Bolig ON Bolig.BoligID = EierBolig.BoligID INNER JOIN Boligtype ON Boligtype.BoligtypeID = Bolig.BoligtypeID INNER JOIN TelefonNR ON TelefonNR.ID = Eier.ID ORDER BY Eier.ID", conn);
+                cmd.CommandType = CommandType.Text;
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    BoligOgEier ehd = new BoligOgEier();
+                    ehd.ID = (int)reader["ID"];
+                    ehd.Fornavn = (string)reader["Fornavn"];
+                    ehd.Etternavn = (string)reader["Etternavn"];
+                    ehd.Adresse = (string)reader["Adresse"];
+                    ehd.PostNR = (int)reader["PostNR"];
+                    ehd.Boligtype = (string)reader["Boligtype"];
+                    ehd.BoligtypeID = (int)reader["BoligtypeID"];
+                    ehd.AntallSoverom = (int)reader["AntallSoverom"];
+                    ehd.AntallEtasjer = (int)reader["AntallEtasjer"];
+                    ehd.Primerrom = (int)reader["Primerrom"];
+                    ehd.Bruksareal = (int)reader["Bruksareal"];
+                    ehd.Tomteareal = (int)reader["Tomteareal"];
+                    ehd.Byggeår = (int)reader["Byggeår"];
+                    ehd.TelefonNR = (int)reader["Telefonnr"];
+                    EierHus.Add(ehd);
+                }
+                reader.Close();
+                conn.Close();
+
+                return EierHus;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return null;
+            }
+        }
+        public DataTable GetBoligAndOwners()
+        {
+            var connectionString = ConfigurationManager.ConnectionStrings["HusOgEier"].ConnectionString;
             DataTable dt=new DataTable();
-            SqlParameter param;
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
                 //den samme sql queryen her som dere allerede har testet i sql manager - her med et parameter, som er telefonnummeret
-                SqlCommand cmd = new SqlCommand("select BoligEier.BoligId,Bolig.Adresse,Bolig.PostNummer,BoligEier.EierId, Eier.ForNavn,Eier.EtterNavn,Telefon.Telefon FROM BoligEier INNER JOIN Eier ON Eier.EierId = BoligEier.EierId INNER JOIN Telefon ON Eier.EierId = Telefon.EierId INNER JOIN Bolig ON Bolig.BoligId = BoligEier.BoligId where Telefon.Telefon = @tlf", conn);
+                SqlCommand cmd = new SqlCommand("SELECT Eier.ID, Eier.Fornavn, Eier.Etternavn, Eier.Adresse, Eier.PostNR, Bolig.BoligID, Bolig.AntallSoverom, Bolig.AntallEtasjer, Bolig.Primerrom, Bolig.Bruksareal, Bolig.Tomteareal, Bolig.Byggeår, Boligtype.Boligtype, TelefonNR.TelefonNR\r\nFROM EierBolig\r\nINNER JOIN Eier ON Eier.ID = EierBolig.ID\r\nINNER JOIN Bolig ON Bolig.BoligID = EierBolig.BoligID\r\nINNER JOIN Boligtype ON Boligtype.BoligtypeID = Bolig.BoligtypeID\r\nINNER JOIN TelefonNR ON TelefonNR.ID = Eier.ID\r\nORDER BY Eier.ID", conn);
                 cmd.CommandType = CommandType.Text;
-
-                //params here
-                param = new SqlParameter("@tlf", SqlDbType.NChar);
-                param.Value = tlf; //variabel som blir sendt inn til metoden. Kommer fra bruker som tastet dette inn i et tekstfelt.
-                cmd.Parameters.Add(param);
 
                 SqlDataReader reader = cmd.ExecuteReader();
 
@@ -62,5 +102,41 @@ namespace DataTableSample
             }
             return dt;
         }
+public List<BoligOgEier> GetAllDataFromEierAndHusWhereTLFnr(int TextBoxTLFnr)
+        {
+            try
+            {
+                List<BoligOgEier> EierHus = new List<BoligOgEier>(); conn.Open();
+                SqlCommand cmd = new SqlCommand($"SELECT Eier.ID, Eier.Fornavn, Eier.Etternavn, Eier.Adresse, Eier.PostNR, Boligtype, Boligtype.BoligtypeID, Bolig.AntallSoverom, Bolig.AntallEtasjer, Bolig.Primerrom, Bolig.Bruksareal, Bolig.Tomteareal, Bolig.Byggeår, TelefonNR.TelefonNR FROM EierBolig INNER JOIN Eier ON Eier.ID = EierBolig.ID INNER JOIN Bolig ON Bolig.BoligID = EierBolig.BoligID INNER JOIN Boligtype ON Boligtype.BoligtypeID = Bolig.BoligtypeID INNER JOIN TelefonNR ON TelefonNR.ID = Eier.ID WHERE TelefonNR = @tlf ORDER BY Eier.ID", conn); 
+                cmd.Parameters.AddWithValue("tlf", TextBoxTLFnr); 
+                SqlDataReader reader = cmd.ExecuteReader(); while (reader.Read())
+                {
+                    BoligOgEier ehd = new BoligOgEier();
+                    ehd.ID = (int)reader["ID"];
+                    ehd.Fornavn = (string)reader["Fornavn"];
+                    ehd.Etternavn = (string)reader["Etternavn"];
+                    ehd.Adresse = (string)reader["Adresse"];
+                    ehd.PostNR = (int)reader["PostNR"];
+                    ehd.Boligtype = (string)reader["Boligtype"];
+                    ehd.BoligtypeID = (int)reader["BoligtypeID"];
+                    ehd.AntallSoverom = (int)reader["AntallSoverom"];
+                    ehd.AntallEtasjer = (int)reader["AntallEtasjer"];
+                    ehd.Primerrom = (int)reader["Primerrom"];
+                    ehd.Bruksareal = (int)reader["Bruksareal"];
+                    ehd.Tomteareal = (int)reader["Tomteareal"];
+                    ehd.Byggeår = (int)reader["Byggeår"];
+                    ehd.TelefonNR = (int)reader["Telefonnr"];
+                    EierHus.Add(ehd);
+                }
+                reader.Close();
+                conn.Close(); return EierHus;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return null;
+            }
+        }
+
+
     }
 }
