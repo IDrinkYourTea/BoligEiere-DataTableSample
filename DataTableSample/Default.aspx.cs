@@ -36,5 +36,6 @@ namespace DataTableSample
             GridView1.DataSource = dbl.GetElev(Fornavn);
             GridView1.DataBind();
         }
+
     }
 }

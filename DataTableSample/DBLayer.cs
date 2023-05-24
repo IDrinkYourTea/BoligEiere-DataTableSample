@@ -23,7 +23,7 @@ namespace DataTableSample
                 List<Elever> EierHus = new List<Elever>();
 
                  conn.Open();
-                SqlCommand cmd = new SqlCommand($"SELECT ElevID, Fornavn, Etternavn, Adresse, Elev.PostNr, Poststeder.Poststed, Klasse.KlasseNavn\r\nFrom Elev\r\nINNER JOIN Poststeder ON Poststeder.PostNr = Elev.PostNr\r\nINNER JOIN Klasse ON Klasse.KlasseID = Elev.KlasseID ORDER BY Klasse.KlasseNavn", conn);
+                SqlCommand cmd = new SqlCommand($"SELECT Elev.ElevID, Fornavn, Etternavn, Adresse, Elev.PostNr, Poststeder.Poststed, Klasse.KlasseNavn\r\nFrom Elev\r\nINNER JOIN Poststeder ON Poststeder.PostNr = Elev.PostNr\r\nINNER JOIN Klasse ON Klasse.KlasseID = Elev.KlasseID", conn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader reader = cmd.ExecuteReader();
 
@@ -36,6 +36,7 @@ namespace DataTableSample
                     ehd.Adresse = (string)reader["Adresse"];
                     ehd.PostNR = (int)reader["PostNR"];
                     ehd.KlasseNavn = (string)reader["KlasseNavn"];
+                    ehd.FagNavn = (string)reader["FagNavn"];
                     EierHus.Add(ehd);
                 }
                 reader.Close();
@@ -58,7 +59,7 @@ namespace DataTableSample
             {
                 conn.Open();
                 //den samme sql queryen her som dere allerede har testet i sql manager - her med et parameter, som er telefonnummeret
-                SqlCommand cmd = new SqlCommand("SELECT Fornavn, Etternavn, Adresse, Elev.PostNr, Poststeder.Poststed, Klasse.KlasseNavn\r\nFrom Elev\r\nINNER JOIN Poststeder ON Poststeder.PostNr = Elev.PostNr\r\nINNER JOIN Klasse ON Klasse.KlasseID = Elev.KlasseID\r\nWHERE Fornavn = @ForNavn", conn);
+                SqlCommand cmd = new SqlCommand("SELECT Elev.ElevID, Fornavn, Etternavn, Adresse, Elev.PostNr, Poststeder.Poststed, Klasse.KlasseNavn\r\nFrom Elev\r\nINNER JOIN Poststeder ON Poststeder.PostNr = Elev.PostNr\r\nINNER JOIN Klasse ON Klasse.KlasseID = Elev.KlasseID", conn);
                 cmd.CommandType = CommandType.Text;
                 param = new SqlParameter("@ForNavn", SqlDbType.NVarChar);
                 cmd.Parameters.Add(param);

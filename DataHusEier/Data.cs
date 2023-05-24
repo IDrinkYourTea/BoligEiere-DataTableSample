@@ -14,5 +14,6 @@ namespace DataKlasse
         public string Adresse { get; set; }
         public int PostNR { get; set; }
         public string KlasseNavn { get; set; }
+        public string FagNavn { get; set; }
     }
 }
