@@ -91,9 +91,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DataHusEier\DataHusEier.csproj">
+    <ProjectReference Include="..\DataHusEier\DataKlasse.csproj">
       <Project>{6e3a78ed-b480-4cf6-b6ba-7e94a79a312a}</Project>
-      <Name>DataHusEier</Name>
+      <Name>DataKlasse</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

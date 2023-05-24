@@ -6,44 +6,36 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Web;
-using DataHusEier;
+using DataKlasse;
 using DataTableSample;
 
 namespace DataTableSample
 {
     public class DBLayer
     {
-        static string connectionString = ConfigurationManager.ConnectionStrings["BoligEier"].ConnectionString;
+        static string connectionString = ConfigurationManager.ConnectionStrings["ConnectionKlasse"].ConnectionString;
         SqlConnection conn = new SqlConnection(connectionString);
 
-        public List<BoligOgEier> GetAllDataFromEierAndHus()
+        public List<Elever> GetAllDataFromElever()
         {
             try
             {
-                List<BoligOgEier> EierHus = new List<BoligOgEier>();
+                List<Elever> EierHus = new List<Elever>();
 
-                conn.Open();
-                SqlCommand cmd = new SqlCommand($"SELECT Eier.ID, Eier.Fornavn, Eier.Etternavn, Eier.Adresse, Eier.PostNR, Boligtype, Boligtype.BoligtypeID, Bolig.AntallSoverom, Bolig.AntallEtasjer, Bolig.Primerrom, Bolig.Bruksareal, Bolig.Tomteareal, Bolig.Byggeår, TelefonNR.TelefonNR FROM EierBolig INNER JOIN Eier ON Eier.ID = EierBolig.ID INNER JOIN Bolig ON Bolig.BoligID = EierBolig.BoligID INNER JOIN Boligtype ON Boligtype.BoligtypeID = Bolig.BoligtypeID INNER JOIN TelefonNR ON TelefonNR.ID = Eier.ID ORDER BY Eier.ID", conn);
+                 conn.Open();
+                SqlCommand cmd = new SqlCommand($"SELECT ElevID, Fornavn, Etternavn, Adresse, Elev.PostNr, Poststeder.Poststed, Klasse.KlasseNavn\r\nFrom Elev\r\nINNER JOIN Poststeder ON Poststeder.PostNr = Elev.PostNr\r\nINNER JOIN Klasse ON Klasse.KlasseID = Elev.KlasseID ORDER BY Klasse.KlasseNavn", conn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    BoligOgEier ehd = new BoligOgEier();
-                    ehd.ID = (int)reader["ID"];
+                    Elever ehd = new Elever();
+                    ehd.ElevID = (int)reader["ElevID"];
                     ehd.Fornavn = (string)reader["Fornavn"];
                     ehd.Etternavn = (string)reader["Etternavn"];
                     ehd.Adresse = (string)reader["Adresse"];
                     ehd.PostNR = (int)reader["PostNR"];
-                    ehd.Boligtype = (string)reader["Boligtype"];
-                    ehd.BoligtypeID = (int)reader["BoligtypeID"];
-                    ehd.AntallSoverom = (int)reader["AntallSoverom"];
-                    ehd.AntallEtasjer = (int)reader["AntallEtasjer"];
-                    ehd.Primerrom = (int)reader["Primerrom"];
-                    ehd.Bruksareal = (int)reader["Bruksareal"];
-                    ehd.Tomteareal = (int)reader["Tomteareal"];
-                    ehd.Byggeår = (int)reader["Byggeår"];
-                    ehd.TelefonNR = (int)reader["Telefonnr"];
+                    ehd.KlasseNavn = (string)reader["KlasseNavn"];
                     EierHus.Add(ehd);
                 }
                 reader.Close();
@@ -56,17 +48,21 @@ namespace DataTableSample
                 return null;
             }
         }
-        public DataTable GetBoligAndOwners()
+        public DataTable GetElev(string Fornavn)
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["HusOgEier"].ConnectionString;
+            SqlParameter param;
+            var connectionString = ConfigurationManager.ConnectionStrings["ConnectionKlasse"].ConnectionString;
             DataTable dt=new DataTable();
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
                 //den samme sql queryen her som dere allerede har testet i sql manager - her med et parameter, som er telefonnummeret
-                SqlCommand cmd = new SqlCommand("SELECT Eier.ID, Eier.Fornavn, Eier.Etternavn, Eier.Adresse, Eier.PostNR, Bolig.BoligID, Bolig.AntallSoverom, Bolig.AntallEtasjer, Bolig.Primerrom, Bolig.Bruksareal, Bolig.Tomteareal, Bolig.Byggeår, Boligtype.Boligtype, TelefonNR.TelefonNR\r\nFROM EierBolig\r\nINNER JOIN Eier ON Eier.ID = EierBolig.ID\r\nINNER JOIN Bolig ON Bolig.BoligID = EierBolig.BoligID\r\nINNER JOIN Boligtype ON Boligtype.BoligtypeID = Bolig.BoligtypeID\r\nINNER JOIN TelefonNR ON TelefonNR.ID = Eier.ID\r\nORDER BY Eier.ID", conn);
+                SqlCommand cmd = new SqlCommand("SELECT Fornavn, Etternavn, Adresse, Elev.PostNr, Poststeder.Poststed, Klasse.KlasseNavn\r\nFrom Elev\r\nINNER JOIN Poststeder ON Poststeder.PostNr = Elev.PostNr\r\nINNER JOIN Klasse ON Klasse.KlasseID = Elev.KlasseID\r\nWHERE Fornavn = @ForNavn", conn);
                 cmd.CommandType = CommandType.Text;
+                param = new SqlParameter("@ForNavn", SqlDbType.NVarChar);
+                cmd.Parameters.Add(param);
+                param.Value = Fornavn;
 
                 SqlDataReader reader = cmd.ExecuteReader();
 
@@ -77,66 +73,5 @@ namespace DataTableSample
             }
             return dt; //hele datasettet returneres. skal da kobles til feks en gridview
         }
-
-        /// <summary>
-        /// Returnerer alt fra tabellen boliger. Ikke hensiktsmessig om det er mange boliger.
-        /// </summary>
-        /// <returns></returns>
-        public DataTable GetAllBolig()
-        {
-            var connectionString = ConfigurationManager.ConnectionStrings["BoligEier"].ConnectionString;
-            DataTable dt = new DataTable();
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT * FROM Bolig", conn);
-                cmd.CommandType = CommandType.Text;
-
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                dt.Load(reader);
-
-                reader.Close();
-                conn.Close();
-            }
-            return dt;
-        }
-public List<BoligOgEier> GetAllDataFromEierAndHusWhereTLFnr(int TextBoxTLFnr)
-        {
-            try
-            {
-                List<BoligOgEier> EierHus = new List<BoligOgEier>(); conn.Open();
-                SqlCommand cmd = new SqlCommand($"SELECT Eier.ID, Eier.Fornavn, Eier.Etternavn, Eier.Adresse, Eier.PostNR, Boligtype, Boligtype.BoligtypeID, Bolig.AntallSoverom, Bolig.AntallEtasjer, Bolig.Primerrom, Bolig.Bruksareal, Bolig.Tomteareal, Bolig.Byggeår, TelefonNR.TelefonNR FROM EierBolig INNER JOIN Eier ON Eier.ID = EierBolig.ID INNER JOIN Bolig ON Bolig.BoligID = EierBolig.BoligID INNER JOIN Boligtype ON Boligtype.BoligtypeID = Bolig.BoligtypeID INNER JOIN TelefonNR ON TelefonNR.ID = Eier.ID WHERE TelefonNR = @tlf ORDER BY Eier.ID", conn); 
-                cmd.Parameters.AddWithValue("tlf", TextBoxTLFnr); 
-                SqlDataReader reader = cmd.ExecuteReader(); while (reader.Read())
-                {
-                    BoligOgEier ehd = new BoligOgEier();
-                    ehd.ID = (int)reader["ID"];
-                    ehd.Fornavn = (string)reader["Fornavn"];
-                    ehd.Etternavn = (string)reader["Etternavn"];
-                    ehd.Adresse = (string)reader["Adresse"];
-                    ehd.PostNR = (int)reader["PostNR"];
-                    ehd.Boligtype = (string)reader["Boligtype"];
-                    ehd.BoligtypeID = (int)reader["BoligtypeID"];
-                    ehd.AntallSoverom = (int)reader["AntallSoverom"];
-                    ehd.AntallEtasjer = (int)reader["AntallEtasjer"];
-                    ehd.Primerrom = (int)reader["Primerrom"];
-                    ehd.Bruksareal = (int)reader["Bruksareal"];
-                    ehd.Tomteareal = (int)reader["Tomteareal"];
-                    ehd.Byggeår = (int)reader["Byggeår"];
-                    ehd.TelefonNR = (int)reader["Telefonnr"];
-                    EierHus.Add(ehd);
-                }
-                reader.Close();
-                conn.Close(); return EierHus;
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return null;
-            }
-        }
-
-
     }
 }

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using DataHusEier;
+using DataKlasse;
 
 namespace DataTableSample
 {
@@ -27,13 +27,13 @@ namespace DataTableSample
 
         protected void ButtonShowAll_Click(object sender, EventArgs e)
         {
-            GridView1.DataSource= dbl.GetAllDataFromEierAndHus();
+            GridView1.DataSource= dbl.GetAllDataFromElever();
             GridView1.DataBind();
         }
-        protected void ButtonSearchTelefonNR_Click(object sender, EventArgs e)
+        protected void ButtonSearchElev_Click(object sender, EventArgs e)
         {
-            List<BoligOgEier> boe = dbl.GetAllDataFromEierAndHusWhereTLFnr(int.Parse(TextBoxSearchTelefonNR.Text));
-            GridView1.DataSource = boe;
+            string Fornavn = TextBoxSearchElev.Text; 
+            GridView1.DataSource = dbl.GetElev(Fornavn);
             GridView1.DataBind();
         }
     }

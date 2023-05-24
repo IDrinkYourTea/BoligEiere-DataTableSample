@@ -14,8 +14,8 @@
         <asp:GridView ID="GridView1" runat="server"  AllowPaging="True" PageSize="10" Width="1509px" style="margin-right: 27px" BackColor="White" BorderColor="#999999" BorderStyle="Solid" BorderWidth="1px" CellPadding="3" ForeColor="Black" GridLines="Vertical"  ViewStateMode="Enabled">
                 <AlternatingRowStyle BackColor="#CCCCCC" />           
             </asp:GridView>
-        <asp:TextBox ID="TextBoxSearchTelefonNR" runat="server"></asp:TextBox>
-        <asp:Button ID="ButtonSearchTelefonNR" runat="server" Text="Søk på TelefonNR" OnClick="ButtonSearchTelefonNR_Click" />
+        <asp:TextBox ID="TextBoxSearchElev" runat="server"></asp:TextBox>
+        <asp:Button ID="ButtonSearchElev" runat="server" Text="Søk på Elev" OnClick="ButtonSearchElev_Click" />
     </form>
 </body>
 </html>

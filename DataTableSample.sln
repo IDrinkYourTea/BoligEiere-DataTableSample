@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTableSample", "DataTableSample\DataTableSample.csproj", "{59EC167C-2B47-4C27-96B9-8C77CE39958A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataHusEier", "DataHusEier\DataHusEier.csproj", "{6E3A78ED-B480-4CF6-B6BA-7E94A79A312A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataKlasse", "DataHusEier\DataKlasse.csproj", "{6E3A78ED-B480-4CF6-B6BA-7E94A79A312A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
